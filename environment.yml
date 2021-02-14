@@ -1,0 +1,37 @@
+name: storm_analysis_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - geographiclib>=1.49
+  - geopy>=1.18.1
+  - mock>=2.0.0
+  - beautifulsoup4
+  - ipykernel
+  - ipython
+  - jupyter
+  - jupyter_client
+  - jupyter_core
+  - jupyterlab
+  - numpy>=1.16.2
+  - pandas>=0.24.1
+  - pip
+  - pytest>=4.3.0
+  - pytz
+  - requests
+  - scikit-learn>=0.20.3
+  - scipy
+  - shapely>=1.6.4
+  - matplotlib>=3.0.3
+  - cartopy>=0.17.0
+  - xarray>=0.12.0
+  - pynio
+  - cfgrib
+  - netCDF4
+  - eofs>=1.4.0
+  - multiprocess>=0.70.8
+  - siphon
+  - pydap
+  - dask
+  - pip:
+    - tzwhere
