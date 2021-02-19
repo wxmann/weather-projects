@@ -23,15 +23,15 @@ def asos_raw(station, startts, endts):
     stations, startts, endts = _parse_args(station, startts, endts)
 
     url = ASOS_SERVICE + 'data=all&tz=Etc/UTC&format=onlycomma&latlon=yes&'
-    url += startts.strftime('year1=%Y&month1=%m&day1=%d&')
-    url += endts.strftime('year2=%Y&month2=%m&day2=%d&')
-    url += '&'.join([f'station={st}' for st in station])
+    url += f'year1={startts:%Y}&month1={startts:%-m}&day1={startts:%-d}&'
+    url += f'year2={endts:%Y}&month2={endts:%-m}&day2={endts:%-d}&'
+    url += '&'.join([f'station={st}' for st in stations])
 
     _print_if_debug(f'Getting data from url: {url}')
     return pd.read_csv(url, parse_dates=['valid'], na_values='M')
 
 
-def hourly_precip(station, startts, endts):
+def hourly_precip(station, startts, endts, filter_measurable=True):
     stations, startts, endts = _parse_args(station, startts, endts)
     metadata = station_metadata(stations)
     data_by_network = []
@@ -40,7 +40,11 @@ def hourly_precip(station, startts, endts):
         stations_for_ntwk = metadata[metadata.iem_network == network].stid.unique()
         data_by_network.append(_retrieve_hourly_precip(stations_for_ntwk, startts, endts, network))
 
-    return pd.concat(data_by_network)
+    result = pd.concat(data_by_network)
+    if not filter_measurable:
+        return result
+
+    return result[result.precip_in >= 0.01]
 
 
 def _retrieve_hourly_precip(stations, startts, endts, network):
