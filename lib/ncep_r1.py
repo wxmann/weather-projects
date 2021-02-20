@@ -1,10 +1,21 @@
 from functools import partial
+from ftplib import FTP
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
 BASE_URI = 'http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets'
+
+
+def ftp_cdc_esrl_file(file, email):
+    ftp_url = 'ftp.cdc.noaa.gov'
+    user = 'anonymous'
+    directory = '/Public/incoming/dates/'
+
+    with FTP(ftp_url, user, email) as session, open(file, 'rb') as f:
+        session.cwd(directory)
+        session.storbinary(f'STOR {file}', f)
 
 
 def dailyavg(product, query, with_shiftgrid=False):
