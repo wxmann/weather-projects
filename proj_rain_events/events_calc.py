@@ -6,7 +6,7 @@ def precip_events(df, eps, min_samples):
     rain_hrs = df[df.precip_in >= 0.01]
     
     def to_hour(ns):
-        return ns / 3.6e12
+        return abs(ns / 3.6e12)
 
     dists = pairwise_distances(
         rain_hrs.valid.values.reshape(-1, 1), 
