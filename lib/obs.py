@@ -31,7 +31,7 @@ def asos_raw(station, startts, endts):
     return pd.read_csv(url, parse_dates=['valid'], na_values='M')
 
 
-def hourly_precip(station, startts, endts, filter_measurable=True):
+def hourly_precip(station, startts, endts, filter_measurable=True, reindex=True, sort=True):
     stations, startts, endts = _parse_args(station, startts, endts)
     metadata = station_metadata(stations)
     data_by_network = []
@@ -41,10 +41,16 @@ def hourly_precip(station, startts, endts, filter_measurable=True):
         data_by_network.append(_retrieve_hourly_precip(stations_for_ntwk, startts, endts, network))
 
     result = pd.concat(data_by_network)
-    if not filter_measurable:
-        return result
 
-    return result[result.precip_in >= 0.01]
+    if filter_measurable:
+        result = result[result.precip_in >= 0.01]
+    if sort:
+        by = ['valid', 'station'] if sort is True else sort
+        result = result.sort_values(by=by)
+    if reindex:
+        result = result.reset_index(drop=True)
+
+    return result
 
 
 def _retrieve_hourly_precip(stations, startts, endts, network):
