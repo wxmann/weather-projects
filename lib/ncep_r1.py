@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+import os
+
 BASE_URI = 'http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets'
 
 
@@ -16,6 +18,12 @@ def ftp_cdc_esrl_file(file, email):
     with FTP(ftp_url, user, email) as session, open(file, 'rb') as f:
         session.cwd(directory)
         session.storbinary(f'STOR {file}', f)
+        print(f'FTP to {directory}/{os.path.basename(file)}')
+
+
+def export_file_for_ftp(ser, dest):
+    ser = ser.dt.strftime('%Y%m%d')
+    ser.to_csv(dest, index=False, header=ser.shape)
 
 
 def dailyavg(product, query, with_shiftgrid=False):
