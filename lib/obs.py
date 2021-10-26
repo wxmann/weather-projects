@@ -44,6 +44,13 @@ def hourly_precip(station, startts, endts, filter_measurable=True, reindex=True,
 
     if filter_measurable:
         result = result[result.precip_in >= 0.01]
+    else:
+        resampled_by_st = []
+        for st in result.station.unique():
+            df = result[result.station == st]
+            resampled_by_st.append(_resample(df, startts, endts))
+        result = pd.concat(resampled_by_st)
+
     if sort:
         by = ['valid', 'station'] if sort is True else sort
         result = result.sort_values(by=by)
@@ -51,6 +58,24 @@ def hourly_precip(station, startts, endts, filter_measurable=True, reindex=True,
         result = result.reset_index(drop=True)
 
     return result
+
+
+def _resample(df, startts, endts):
+    result = df.copy()
+    station = df.iloc[0].station
+    network = df.iloc[0].network
+    default_keys = {'station': station, 'network': network}
+
+    if startts not in df.valid.values:
+        result = result.append({'valid': startts, 'precip_in': 0, **default_keys}, ignore_index=True)
+    if endts not in df.valid.values:
+        result = result.append({'valid': endts, 'precip_in': 0, **default_keys}, ignore_index=True)
+
+    return result.resample('H', on='valid').agg({
+        'station': lambda arg: station,
+        'network': lambda arg: network,
+        'precip_in': sum,
+    }).reset_index()
 
 
 def _retrieve_hourly_precip(stations, startts, endts, network):
