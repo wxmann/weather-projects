@@ -57,7 +57,7 @@ def hourly_precip(station, startts, endts, filter_measurable=True, reindex=True,
     if reindex:
         result = result.reset_index(drop=True)
 
-    return result
+    return result[(result.valid >= startts) & (result.valid <= endts)]
 
 
 def _resample(df, startts, endts):
