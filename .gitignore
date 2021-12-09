@@ -3,6 +3,8 @@
 .vscode
 sandbox/
 Untitled*.ipynb
+# do not check in downloaded NC files
+*.nc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
