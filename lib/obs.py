@@ -3,6 +3,7 @@ from config import get_resource
 
 ASOS_SERVICE = 'http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?'
 HR_PRECIP_SERVICE = 'https://mesonet.agron.iastate.edu/cgi-bin/request/hourlyprecip.py?'
+DAILY_SUMMARY_SERVICE = 'https://mesonet.agron.iastate.edu/cgi-bin/request/daily.py?'
 
 DEBUG = False
 
@@ -60,6 +61,19 @@ def hourly_precip(station, startts, endts, filter_measurable=True, reindex=True,
     return result[(result.valid >= startts) & (result.valid <= endts)]
 
 
+def daily_summary(station, startts, endts):
+    stations, startts, endts = _parse_args(station, startts, endts)
+    metadata = station_metadata(stations)
+    data_by_network = []
+
+    for network in metadata.iem_network.unique():
+        stations_for_ntwk = metadata[metadata.iem_network == network].stid.unique()
+        data_by_network.append(_retrieve_daily_summary(stations_for_ntwk, startts, endts, network))
+
+    result = pd.concat(data_by_network)
+    return result
+
+
 def _resample(df, startts, endts):
     result = df.copy()
     station = df.iloc[0].station
@@ -86,6 +100,16 @@ def _retrieve_hourly_precip(stations, startts, endts, network):
 
     _print_if_debug(f'Getting data from url: {url}')
     return pd.read_csv(url, parse_dates=['valid'])
+
+
+def _retrieve_daily_summary(stations, startts, endts, network):
+    url = DAILY_SUMMARY_SERVICE + f'network={network}&'
+    url += startts.strftime('year1=%Y&month1=%m&day1=%d&')
+    url += endts.strftime('year2=%Y&month2=%m&day2=%d&')
+    url += '&'.join([f'station={st}' for st in stations])
+
+    _print_if_debug(f'Getting data from url: {url}')
+    return pd.read_csv(url, parse_dates=['day'], na_values=['None'])
 
 
 def station_metadata(stations):
