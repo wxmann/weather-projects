@@ -1,6 +1,7 @@
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
+
 class LegendBuilder(object):
     def __init__(self, ax=None, **legend_kw):
         self.handles = []

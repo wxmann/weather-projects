@@ -9,7 +9,7 @@ from geopy.distance import distance
 import matplotlib.pyplot as plt
 
 import config
-from .mapplots import CartopyMapPlotter
+from .mapplots import CartopyMapPlotter, CartopyMapTextBox
 from .mapareas import Geobbox
 
 
@@ -84,6 +84,10 @@ class CartopyMap(object):
     @property
     def plot(self):
         return CartopyMapPlotter(self)
+
+    @property
+    def textbox(self):
+        return CartopyMapTextBox(self)
 
     def draw_coastlines(self):
         coastlines = cfeat.GSHHSFeature(self.scale, levels=[1])
