@@ -73,6 +73,18 @@ class CartopyMapPlotter:
 
         return CS
 
+    def imshow(self, da, cmap=None, norm=None):
+        lons = da.lon
+        lats = da.lat
+        lim = (lons.min(), lons.max(), lats.min(), lats.max())
+        return self._bgmap.ax.imshow(
+            da,
+            cmap=cmap,
+            norm=norm,
+            extent=lim,
+            transform=ccrs.PlateCarree()
+        )
+
 
 class CartopyMapTextBox:
     def __init__(self, cartopymap):
